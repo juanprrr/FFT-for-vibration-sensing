@@ -11,8 +11,8 @@ MPU9250 myIMU(MPU9250_ADDRESS, I2Cport, I2Cclock);
 // Pin definitions
 int intPin = 12;  // These can be changed, 2 and 3 are the Arduinos ext int pins
 int myLed  = 13;  // Set up pin 13 led for toggling
-
-
+float g_converter = 9.77589; //Costa Rica's g acceleration
+char userInput;
 void setup() {
   Wire.begin();
   // TWBR = 12;  // 400 kbit/sec I2C speed
@@ -63,17 +63,20 @@ void setup() {
 void loop() {
 //--------------------------------READ ACCELEROMETER DATA-------------------------
   if (myIMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01)
-  {
-    myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
-
-    // Now we'll calculate the accleration value into actual g's
-    // This depends on scale being set
-    myIMU.ax = (float)myIMU.accelCount[0] * myIMU.aRes; // - myIMU.accelBias[0];
-    myIMU.ay = (float)myIMU.accelCount[1] * myIMU.aRes; // - myIMU.accelBias[1];
-    //myIMU.az = (float)myIMU.accelCount[2] * myIMU.aRes; // - myIMU.accelBias[2];
-    Serial.print(myIMU.ax);
-    Serial.print(",");
-    Serial.println(myIMU.ay);
+  {  
+    userInput = Serial.read();
+    if (userInput == 'g'){
+      myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
+      myIMU.ax = (float)myIMU.accelCount[0] * myIMU.aRes; // - myIMU.accelBias[0];
+      myIMU.ay = (float)myIMU.accelCount[1] * myIMU.aRes; // - myIMU.accelBias[1];
+      myIMU.az = (float)myIMU.accelCount[2] * myIMU.aRes; // - myIMU.accelBias[2];
+      Serial.print(myIMU.ax*g_converter);
+      Serial.print(",");
+      Serial.print(myIMU.ay*g_converter);
+      Serial.print(",");
+      Serial.println(myIMU.az*g_converter);
+      
+      }
     
         
   } 
